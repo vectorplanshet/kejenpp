@@ -1606,15 +1606,64 @@ function getLineColor(marker) {
     if (html.includes('neyst tip')) return '#006aff';
     return '#F70300';
 }
+// ==== Цвет следа по ID маркера ====
+function getTrailColorById(marker) {
+    if (!marker || !marker.options || !marker.options.icon) return '#F70300';
 
+    const html = marker.options.icon.options.html || '';
+
+    if (html.includes('red-id'))  return '#dd0347'; // красный
+    if (html.includes('blue-id')) return '#006aff'; // синий
+
+    return '#F70300'; // дефолт
+}
 // ==== Создание линии и стрелок ====
-function createTrail(marker) {
-    const lineColor = getLineColor(marker);
-    trailLine = L.polyline(trailCoords, { color: lineColor, weight: 0.7, opacity: 1 }).addTo(map);
-    startMarker = L.circleMarker(trailCoords[0], {
-        radius: 0.2, color: lineColor, fillColor: lineColor, fillOpacity: 1
+function createTrail(marker, forcedColor = null, withStartPoint = true) {
+    const lineColor = forcedColor || getLineColor(marker);
+
+    trailLine = L.polyline(trailCoords, {
+        color: lineColor,
+        weight: 0.7,
+        opacity: 1
     }).addTo(map);
+
+    // ❗ стартовая точка ТОЛЬКО если разрешено
+    if (withStartPoint) {
+        startMarker = L.circleMarker(trailCoords[0], {
+            radius: 0.2,
+            color: lineColor,
+            fillColor: lineColor,
+            fillOpacity: 1
+        }).addTo(map);
+    } else {
+        startMarker = null;
+    }
+
     updateDecorator(lineColor);
+}
+
+function enableTrail(marker, color = null, withStartPoint = true) {
+    if (showTrail) return;
+    showTrail = true;
+    createTrail(marker, color, withStartPoint);
+}
+
+
+function disableTrail() {
+    showTrail = false;
+
+    if (trailLine) {
+        map.removeLayer(trailLine);
+        trailLine = null;
+    }
+    if (startMarker) {
+        map.removeLayer(startMarker);
+        startMarker = null;
+    }
+    if (trailDecorator) {
+        map.removeLayer(trailDecorator);
+        trailDecorator = null;
+    }
 }
 
 // ==== Декоратор стрелок ====
@@ -1637,16 +1686,18 @@ function updateDecorator(lineColor) {
 function initTrailButton(marker) {
     const btn = document.getElementById("left-arrow-button");
     if (!btn) return console.warn("Кнопка #left-arrow-button не найдена!");
+
     btn.addEventListener("click", () => {
-        showTrail = !showTrail;
-        if (showTrail) createTrail(marker);
-        else {
-            if (trailLine) { map.removeLayer(trailLine); trailLine = null; }
-            if (startMarker) { map.removeLayer(startMarker); startMarker = null; }
-            if (trailDecorator) { map.removeLayer(trailDecorator); trailDecorator = null; }
+        if (!showTrail) {
+            // 👉 кнопка = СО стартовой точкой
+            enableTrail(marker, getTrailColorById(marker), true);
+        } else {
+            disableTrail();
         }
     });
 }
+
+
 
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => initTrailButton(marker));
@@ -1755,6 +1806,8 @@ function createTopMenu(marker) {
     document.body.appendChild(menu);
     // обновлено — линия теперь исчезает при закрытии меню
     document.getElementById(`closeTopMenu-${objectId}`).onclick = () => {
+            disableTrail();
+
         // вернуть иконку в обычный вид, если была раскрыта
 if (marker._expanded) {
     marker.setIcon(L.divIcon({
@@ -1820,7 +1873,37 @@ if (marker._expanded) {
 let headingLine = null;
 
 marker.on('click', () => {
+    
+    // 🛑 1. DELETE MODE — ПЕРВЫМ
+    if (deleteMode) {
+        e.originalEvent.stopPropagation();
+        e.originalEvent.preventDefault();
+
+        // ❌ убрать след, если есть
+        disableTrail();
+
+        // 🟡 убрать круг скорости
+        if (marker._speedCircle) {
+            map.removeLayer(marker._speedCircle);
+            marker._speedCircle = null;
+        }
+
+        if (confirm('Удалить этот объект?')) {
+            marker.remove();
+            isActive = false;
+
+            const deleteButton = document.getElementById('deleteButton');
+            if (deleteButton) {
+                deleteMode = false;
+                deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            }
+        }
+
+        return; // ⛔ ВСЁ, НИЧЕГО ДАЛЬШЕ НЕ ВЫПОЛНЯЕМ
+    }
     createTopMenu(marker);
+    // ❌ без стартовой точки
+
 
     // сохранить исходные параметры 1 раз
 if (!marker._saved) {
@@ -1947,8 +2030,8 @@ const expandedAnchor = [
         weight: 0.8,      // тоньше
         opacity: 0.9
     }).addTo(map);
+        enableTrail(marker, getTrailColorById(marker), false);
                 });
-
 // ==== Функция обновления линии направления ====
 function updateHeadingLine(angleDeg) {
     if (!headingLine) return;
@@ -2172,7 +2255,6 @@ marker.on('click', function (e) {
     }
 
     // если не deleteMode — показываем меню
-    createTopMenu(marker);
 },)
     
               })},)})
