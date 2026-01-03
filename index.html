@@ -2259,57 +2259,153 @@ fetch("front.json")
   })
   .catch(error => console.error("Ошибка загрузки JSON:", error));
 
-  let polygons = {};
+  let polygons = {}; // активные районы
+let activeDistricts = {}; // какие районы включены
 let menuVisible = false;
 
-fetch('trevoga.json')
-    .then(response => response.json())
-    .then(geojsonData => {
-        let regions = {};
-        geojsonData.features.forEach(feature => {
-            let name = feature.properties.name;
-            regions[name] = feature;
-        });
-
-        // Автоматически активируем "Луганская область" и "А. Р Крым"
-        const autoActivateRegions = ["Луганская область"];
-        
-        document.querySelectorAll('#alert-menu input[type=checkbox]').forEach(checkbox => {
-            checkbox.onchange = function() {
-                let region = checkbox.id;
-                if (checkbox.checked && regions[region]) {
-                    let layer = L.geoJSON(regions[region], {
-                        style: { color: 'red', fillColor: 'red', fillOpacity: 0.1, weight: 0.3 }
-                    }).addTo(map);
-                    polygons[region] = layer;
-                } else if (polygons[region]) {
-                    map.removeLayer(polygons[region]);
-                    delete polygons[region];
-                }
-            };
-
-            // Автоматически ставим галочку для нужных регионов и активируем их
-            if (autoActivateRegions.includes(checkbox.id)) {
-                checkbox.checked = true;
-                checkbox.onchange();  // Вызываем onchange вручную для активированного региона
-            }
-        });
-
-        // Обработчик для чекбокса "По всей территории"
-        document.getElementById('По всей территории').onchange = function() {
-            let isChecked = this.checked;
-            document.querySelectorAll('#alert-menu input[type=checkbox]').forEach(checkbox => {
-                if (checkbox.id !== 'По всей территории') {
-                    checkbox.checked = isChecked;
-                    checkbox.onchange();  // Активируем или деактивируем регионы в зависимости от состояния
-                }
-            });
-        };
+fetch('districts.geojson')
+  .then(response => response.json())
+  .then(geojsonData => {
+    const districtsByRegion = {};
+    geojsonData.features.forEach(feature => {
+      const region = feature.properties.ADMIN_1;
+      if (!districtsByRegion[region]) districtsByRegion[region] = [];
+      districtsByRegion[region].push(feature);
     });
+// === ВСЕГДА подсвечиваем ЛУГАНСКУЮ ОБЛАСТЬ через trevoga.json ===
+fetch('trevoga.json')
+  .then(r => r.json())
+  .then(trevogaData => {
 
+    trevogaData.features.forEach(feature => {
+
+      // Ищем "Луганская область" в любых свойствах
+      const props = feature.properties;
+      const isLugansk = Object.values(props).some(v => 
+        typeof v === 'string' && v.trim().toLowerCase() === 'луганская область'
+      );
+
+      if (isLugansk) {
+
+        const layer = L.geoJSON(feature, {
+          style: {
+            color: 'red',
+            fillColor: 'red',
+            fillOpacity: 0.13,
+            weight: 0.3
+          }
+        }).addTo(map);
+
+        const districtName =
+          props.ADMIN_2 ||
+          props.name ||
+          props.region ||
+          'Луганская область';
+
+        polygons[districtName] = layer;
+        activeDistricts[districtName] = true;
+      }
+    });
+  });
+
+
+    document.querySelectorAll('#alert-menu input[type=checkbox]').forEach(checkbox => {
+      const region = checkbox.id;
+
+      checkbox.addEventListener('click', async function (e) {
+        e.preventDefault(); // блокируем установку галочки
+
+        // ======== ОТДЕЛЬНО ОБРАБАТЫВАЕМ г.Київ ========
+        if (region === 'г.Київ') {
+          if (polygons['Kyiv']) {
+            // если уже включён — выключаем
+            map.removeLayer(polygons['Kyiv']);
+            delete polygons['Kyiv'];
+            checkbox.checked = false;
+            return;
+          }
+
+          // загружаем Kyiv.json
+          const kyivData = await fetch('Kyiv.json').then(r => r.json());
+          const kyivLayer = L.geoJSON(kyivData, {
+            style: {
+  color: 'red',
+  fillColor: 'red',
+  fillOpacity: 0.13,
+  weight: 0.3
+}
+
+          }).addTo(map);
+
+          polygons['Kyiv'] = kyivLayer;
+          checkbox.checked = true;
+          return; // не открываем список
+        }
+        // ==============================================
+
+        const existingList = checkbox.parentElement.querySelector('.district-list');
+        if (existingList) {
+          existingList.remove();
+          return;
+        }
+
+        if (districtsByRegion[region]) {
+          const subList = document.createElement('div');
+          subList.className = 'district-list';
+          subList.style.marginLeft = '20px';
+          subList.style.marginTop = '5px';
+
+          districtsByRegion[region].forEach(feature => {
+            const districtName = feature.properties.ADMIN_2;
+
+            const div = document.createElement('div');
+            div.innerHTML = `
+              <input type="checkbox" id="${districtName}" data-region="${region}">
+              <label for="${districtName}">${districtName}</label>
+            `;
+            subList.appendChild(div);
+
+            const districtCheckbox = div.querySelector('input');
+
+            if (activeDistricts[districtName]) {
+              districtCheckbox.checked = true;
+            }
+
+            districtCheckbox.onchange = function() {
+              const featureData = districtsByRegion[region].find(f => f.properties.ADMIN_2 === districtName);
+
+              if (districtCheckbox.checked) {
+                const layer = L.geoJSON(featureData, {
+                  style: {
+                    color: 'red',
+                    fillColor: 'red',
+                    fillOpacity: 0.13,
+                    weight: 0.15
+                  }
+                }).addTo(map);
+
+                polygons[districtName] = layer;
+                activeDistricts[districtName] = true;
+              } else {
+                if (polygons[districtName]) {
+                  map.removeLayer(polygons[districtName]);
+                  delete polygons[districtName];
+                }
+                delete activeDistricts[districtName];
+              }
+            };
+          });
+
+          checkbox.parentElement.appendChild(subList);
+        }
+      });
+    });
+  });
+
+// кнопка "Дать тревогу"
 document.getElementById('alert-button').onclick = function() {
-    menuVisible = !menuVisible;
-    document.getElementById('alert-menu').style.display = menuVisible ? 'block' : 'none';
+  menuVisible = !menuVisible;
+  document.getElementById('alert-menu').style.display = menuVisible ? 'block' : 'none';
 };
         function getKievTime() {
     const options = {
@@ -2358,28 +2454,6 @@ function getNextLitakId() {
     setInterval(updateAlertCount, 500);
     updateAlertCount();
 
-fetch('line.json')
-  .then(res => res.json())
-  .then(data => {
-    L.geoJSON(data, {
-      style: {
-        color: 'red',
-        weight: 1.5
-      }
-    }).addTo(map);
-  });
-
-fetch('okkyp.json')
-  .then(res => res.json())
-  .then(data => {
-    L.geoJSON(data, {
-      style: {
-        stroke: false,        // 🔥 отключает контур
-        fillColor: '#e6a57a',
-        fillOpacity: 0.3      // прозрачность, подбери
-      }
-    }).addTo(map);
-  });
     const zoomButtons = document.getElementById('zoom-buttons');
     let hideTimeout;
 
