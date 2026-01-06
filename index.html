@@ -1829,6 +1829,211 @@ transform: scale(0.95);
 
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='105' height='96'%3E%3Cg transform='rotate(-41 52.5 48)'%3E%3Ctext x='52.5' y='16' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabf240e%3C/text%3E%3Ctext x='16' y='48' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabf240e%3C/text%3E%3Ctext x='89' y='48' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabf240e%3C/text%3E%3Ctext x='52.5' y='80' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabf240e%3C/text%3E%3C/g%3E%3C/svg%3E");
 }
+.leaflet-scale-bracket {
+  position: relative;
+  width: 160px;
+  height: 34px;
+  pointer-events: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #000;
+}
+
+/* верхняя горизонталь */
+.leaflet-scale-bracket::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #000;
+  z-index: 9999;
+}
+
+/* левая вертикаль */
+.leaflet-scale-bracket::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 14px;
+  background: #000;
+    z-index: 9999;
+}
+
+/* правая вертикаль */
+.leaflet-scale-bracket .right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2px;
+  height: 14px;
+  background: #000;
+    z-index: 9999;
+}
+
+/* текст под скобкой */
+.leaflet-scale-bracket span {
+  position: absolute;
+  bottom: 14px;
+  width: 100%;
+  text-align: center;
+  line-height: 1;
+    z-index: 9999;
+}
+.leaflet-control.leaflet-scale-bracket {
+  position: fixed;
+  top: 17px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+        .red-id {
+            color: #000000;
+        }
+        .blue-id {
+            color: #000000; /* Синий цвет для текста */
+        }
+
+        /* Стили для текста в зависимости от цвета */
+.style-pol .red-id .label-container,
+.style-pol .red-id .r-container,
+.style-pol .red-id .rls-container, 
+.style-pol .red-id .icon-container {
+    color: #000000;
+}
+
+.style-pol .blue-id .label-container,
+.style-pol .blue-id .r-container,
+.style-pol.blue-id .rls-container,
+.style-pol .blue-id .icon-container {
+        color: #000000; /* Синий цвет для текста */
+}
+      .style-pol.shifted-id-x-101 {
+    margin-left: 32px; /* 20 * 1.6 */
+}
+.style-pol .shifted-id {
+    margin-left: 24px; /* 15 * 1.6 */
+}
+.style-pol .shifted-id-grumble,
+.style-pol .shifted-id-kinzhal {
+    margin-left: 40px; /* 25 * 1.6 */
+}
+
+.style-pol .info-container {
+    line-height: 14px; /* 9 * 1.6 */
+}
+.style-pol .iconname {
+    line-height: 8px; /* 5 * 1.6 */
+}
+.style-pol .info-container1 {
+    line-height: 11px; /* 7 * 1.6 */
+}
+
+.style-pol .label-container {
+    font-size: 10.4px; /* 6.5 * 1.6 */
+    font-weight: 800;
+    font-family: 'Roboto', sans-serif;
+}
+
+.style-pol .r-container {
+    font-size: 10.4px;
+    font-weight: 800;
+    font-family: 'Roboto', sans-serif;
+}
+
+.style-pol .rls1-container {
+    font-size: 10.4px;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-weight: 600;
+    color: #333333;
+}
+
+.style-pol .rls-container {
+    font-size: 10.4px;
+    display: flex;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 800;
+    flex-direction: column;
+    justify-content: center;
+    color: #333333;
+}
+
+.style-pol .label1-container {
+    font-size: 10.4px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 600;
+    color: #333333;
+}
+
+.style-pol .r1-container {
+    font-size: 10.4px;
+    font-weight: 600;
+    font-family: 'Roboto', sans-serif;
+    color: #333333;
+}
+
+.style-pol .icon-container {
+    display: flex;
+    align-items: center;
+    gap: 14px;              /* 10 * 1.6 */
+    font-size: 11.2px;      /* 7 * 1.6 */
+    position: absolute;
+    white-space: nowrap;
+}
+
+.style-pol .icon-container .icon {
+    width: 30px;          /* 19 * 1.6 */
+    height: 30px;
+    object-fit: cover;
+    display: block;
+}
+.menu-text {
+    position: fixed;
+    right: 16px;                /* 10 * 1.6 */
+    bottom: 6px;                /* 4 * 1.6 */
+    font-size: 13px;            /* 8 * 1.6 */
+    color: rgba(0,0,0,0.3);
+    line-height: 1;
+    text-align: right;
+    margin-bottom: 0;
+    padding-top: 5px;           /* 3 * 1.6 */
+    z-index: 9999;
+}
+.style-pol .icon-container1 {
+    display: flex;
+    align-items: center;
+    gap: 10.4px;            /* 6.5 * 1.6 */
+    font-size: 11.2px;      /* 7 * 1.6 */
+    position: absolute;
+    white-space: nowrap;
+}
+
+.style-pol .icon-container1 .icon {
+    width: 30.4px;          /* 19 * 1.6 */
+    height: 30.4px;
+    object-fit: cover;
+    display: block;
+}
+
+.style-pol .leaflet-watermark {
+  position: absolute;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+
+  opacity: 0.3;
+  background-repeat: repeat;
+
+  /* синхронно с SVG */
+  background-size: 105px 96px;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='105' height='96'%3E%3Cg transform='rotate(-41 52.5 48)'%3E%3Ctext x='52.5' y='16' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabf23bf%3C/text%3E%3Ctext x='16' y='48' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabf23bf%3C/text%3E%3Ctext x='89' y='48' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabf23bf%3C/text%3E%3Ctext x='52.5' y='80' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabf23bf%3C/text%3E%3C/g%3E%3C/svg%3E");
+}
+
     </style>
 </head>
 <body>
@@ -1904,6 +2109,8 @@ transform: scale(0.95);
          <option value="val-slom">Вали</option>
           <option value="labrador">Лабрадор власний</option>
         <option value="labrador-vl">Лабрадор мвг</option>
+        <option value="pol">Полка</option>
+        .style-pol
         </select>
       </div>
     </div>
@@ -2586,7 +2793,23 @@ if (speed >= 120 && speed <= 121) {
             iconSize: [24.1, 24.1],
             iconAnchor: [12.05, 12.05],
         });
-    } else if (iconClass === 'perexop') {
+    } else if (iconClass === 'zl') {
+                                iconUrl = 'zl.png';
+        iconHtml = `
+            <div class="icon-container ${iconClass}">
+                <img src="${iconUrl}" class="icon" />
+                <div class="info-container ${shiftedClass} ${shiftedClasss}">
+                    <span class="label-container ${iconClass}">0${objectId2}р</span>
+                    <span class="r-container ${iconClass}">ЗЛ·</span>
+                </div>
+            </div>
+        `;
+        icon = L.divIcon({
+            className: 'icon',
+            html: iconHtml,
+            iconSize: [24.1, 24.1],
+            iconAnchor: [12.05, 12.05],
+        });
         iconHtml = `
             <div class="icon-container ${iconClass}">
                 <img src="${iconUrl}" class="icon" />
@@ -2755,7 +2978,9 @@ function getTrailColorById(marker) {
     const html = marker.options.icon.options.html || '';
 
     if (html.includes('red-id'))  return '#dd0347'; // красный
-    if (html.includes('blue-id')) return '#006aff'; // синий
+    if (html.includes('blue-id')) return '#2375D8'; // синий
+    if (html.includes('zl')) return '#000000'; // синий
+    if (html.includes('perexop')) return '#000000'; // синий
 
     return '#F70300'; // дефолт
 }
@@ -3705,6 +3930,7 @@ function getNextLitakId() {
   'style-vladimir':   [29, 29],
   'style-pomelo':     [27, 27],
   '.style-labrador':  [26, 26],
+  '.style-pol':       [30, 30],
 '.style-labrador-vl':  [30, 30]
 };
 
@@ -3790,7 +4016,7 @@ document.addEventListener('DOMContentLoaded', () => {
   root.classList.add('style-pomelo');
 
   styleSelect.addEventListener('change', () => {
-    root.classList.remove('style-pomelo', 'style-mariupol', 'style-bandera', 'style-vladimir', 'style-val-slom', 'style-labrador', 'style-labrador-vl');
+    root.classList.remove('style-pomelo', 'style-mariupol', 'style-bandera', 'style-vladimir', 'style-val-slom', 'style-labrador', 'style-labrador-vl', 'style-pol');
 const styleClass = `style-${styleSelect.value}`;
 root.classList.add(styleClass);
 
@@ -3809,6 +4035,8 @@ if (styleSelect.value === 'bandera') {
   root.classList.add('style-labrador');
   } else if (styleSelect.value === 'labrador-vl') {
   root.classList.add('style-labrador-vl');
+} else if (styleSelect.value === 'pol') {
+  root.classList.add('style-pol');
 } else {
   root.classList.add('style-pomelo');
 }
@@ -4120,6 +4348,49 @@ const HIGH_SPEED_LINE_STYLE = {
   dashArray: '6 6',   // 🔥 пунктир
   lineCap: 'round'
 };
+const ScaleBracketTop = L.Control.extend({
+  options: {
+    maxWidth: 160
+  },
+
+  onAdd(map) {
+    this._map = map;
+
+    this._container = L.DomUtil.create('div', 'leaflet-scale-bracket');
+    this._label = L.DomUtil.create('span', '', this._container);
+    this._right = L.DomUtil.create('div', 'right', this._container);
+
+    map.on('zoomend moveend', this._update, this);
+    this._update();
+
+    return this._container;
+  },
+
+  _update() {
+    const map = this._map;
+    const width = this.options.maxWidth;
+
+    const centerY = map.getSize().y / 2;
+    const centerX = map.getSize().x / 2;
+
+    const p1 = map.containerPointToLatLng([centerX - width / 2, centerY]);
+    const p2 = map.containerPointToLatLng([centerX + width / 2, centerY]);
+
+    const meters = map.distance(p1, p2);
+
+    let text;
+    if (meters >= 1000) {
+      text = `${Math.round(meters / 1000)} km`;
+    } else {
+      text = `${Math.round(meters)} m`;
+    }
+
+    this._container.style.width = width + 'px';
+    this._label.textContent = text;
+  }
+});
+const scaleTop = new ScaleBracketTop({ maxWidth: 160 });
+map.addControl(scaleTop);
 
 </script>
 
