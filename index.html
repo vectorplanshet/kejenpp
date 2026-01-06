@@ -167,7 +167,7 @@ input[type="text"]:focus {
 .modal-button:focus {
     outline: none;
 }
-/* Кастомное меню */
+/* Кастомное меню */    
         /* Сдвигаем контейнер вправо для нужных объектов */
         .shifted-info-container {
             margin-left: 2.1px; /* Сдвиг на 20px вправо, можно менять значение */
@@ -469,7 +469,7 @@ button#alert-button {
 }
 
 .leaflet-popup-content-wrapper {
-    zoom: 0.5; /* 0.5 * 1.6 */
+    zoom: 0.75; /* 0.5 * 1.6 */
 }
 
 /* Заголовок окна */
@@ -1446,16 +1446,6 @@ transform: scale(0.95);
     white-space: nowrap;
 }
 
-.style-val-slom .icon-container::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 32px;              /* 20 × 1.6 */
-    height: 1px;              /* 0.6 × 1.6 */
-    background-color: rgb(0, 218, 0);
-    border-radius: 1.6px;
-}
 
 .style-val-slom .icon-container1 {
     display: flex;
@@ -1501,6 +1491,53 @@ transform: scale(0.95);
 
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='125'%3E%3Cg transform='rotate(-41 70 62.5)'%3E%3Ctext x='70' y='22' text-anchor='middle' font-family='Arial' font-size='16' fill='%23000' fill-opacity='0.75'%3Ec0a8bea4%3C/text%3E%3Ctext x='22' y='62.5' text-anchor='middle' font-family='Arial' font-size='16' fill='%23000' fill-opacity='0.75'%3Ec0a8bea4%3C/text%3E%3Ctext x='118' y='62.5' text-anchor='middle' font-family='Arial' font-size='16' fill='%23000' fill-opacity='0.75'%3Ec0a8bea4%3C/text%3E%3Ctext x='70' y='105' text-anchor='middle' font-family='Arial' font-size='16' fill='%23000' fill-opacity='0.75'%3Ec0a8bea4%3C/text%3E%3C/g%3E%3C/svg%3E");
 }
+/* скрытие подписей у иконок */
+.hide-text .info-container {
+  display: none;
+}
+/* базово — індикатор вимкнений */
+.icon-container::after {
+  content: none;
+}
+
+/* увімкнено */
+.show-quality .icon-container::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  width: 32px;
+  height: 1px;
+
+  background-color: rgb(0, 218, 0);
+  border-radius: 1.6px;
+}
+/* 🍈 Pomelo */
+.style-pomelo.show-quality .icon-container::after {
+  width: 27px;
+}
+
+/* 🟥 Vladimir */
+.style-vladimir.show-quality .icon-container::after {
+  width: 29px;
+}
+
+/* 🟦 Bandera */
+.style-bandera.show-quality .icon-container::after {
+  width: 28.8px;
+}
+
+/* 🟨 Mariupol (если есть) */
+.style-mariupol.show-quality .icon-container::after {
+  width: 24.1px;
+}
+
+/* 🟪 Val-slom */
+.style-val-slom.show-quality .icon-container::after {
+  width: 32px;
+}
+
     </style>
 </head>
 <body>
@@ -1541,6 +1578,28 @@ transform: scale(0.95);
     <span class="slider"></span>
   </label>
 </div>
+<div class="setting-row">
+  <span class="setting-text">Показувати текст</span>
+  <label class="switch">
+    <input type="checkbox" id="toggleText" checked>
+    <span class="slider"></span>
+  </label>
+</div>
+<div class="setting-row">
+  <span class="setting-text">Показувати якість фіксування</span>
+  <label class="switch">
+    <input type="checkbox" id="toggleQuality">
+    <span class="slider"></span>
+  </label>
+</div>
+
+<div class="setting-row">
+  <span class="setting-text">Показувати позицію</span>
+  <label class="switch">
+    <input type="checkbox" id="togglePosition">
+    <span class="slider"></span>
+  </label>
+</div>
 
     <!-- 🔽 СТИЛЬ ВНУТРИ ПАНЕЛИ -->
     <div class="style-section">
@@ -1555,6 +1614,21 @@ transform: scale(0.95);
         </select>
       </div>
     </div>
+<div class="style-section">
+  <div class="style-title">Карта</div>
+  <div class="style-select">
+    <select id="mapSelect">
+      <option value="osm" selected>OSM</option>
+      <option value="osmGray">OSM Gray</option>
+      <option value="satellite">Satellite</option>
+      <option value="googleStreets">Google Maps</option>
+      <option value="googleHybrid">Google Hybrid</option>
+      <option value="googleTerrain">Google Terrain</option>
+      <option value="openTopo">OpenTopoMap</option>
+      <option value="googleTerrainGray">Google Terrain Gray</option>
+    </select>
+  </div>
+</div>
 
   </div>
 </div>
@@ -1719,6 +1793,8 @@ transform: scale(0.95);
         "leaflet-watermark",
         map.getContainer()
       );
+let frontLineLayer = null;
+let occLayer = null;
 
       L.DomEvent.disableClickPropagation(watermark);
       L.DomEvent.disableScrollPropagation(watermark);
@@ -1773,8 +1849,17 @@ googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}'
         subdomains:['mt0','mt1','mt2','mt3']
 });
 
+googleHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}',{
+        maxZoom: 20,
+        subdomains:['mt0','mt1','mt2','mt3']
+});
 googleTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
         maxZoom: 20,
+        subdomains:['mt0','mt1','mt2','mt3']
+});
+googleTerrainGray = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}',{
+        maxZoom: 20,
+        className: 'map-tiles', // Класс, на который будет действовать фильтр
         subdomains:['mt0','mt1','mt2','mt3']
 });
 var OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
@@ -1796,28 +1881,20 @@ var Stadia_OSMBright = L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_brigh
 	ext: 'png'
 });
 
-// Добавляем стандартную карту по умолчанию
-osmLayer.addTo(map);
+// текущий активный слой
+let currentBaseLayer = osmLayer;
 
-// Настройка слоев для переключения
-const baseLayers = {
-    "OSM": osmLayer,
-    "OSM Gray": osmGrayLayer,
-    "OSM Black": darkLayer,
-    "Satellite": satelliteLayerWithBorders,
-    "Google Maps": googleStreets,
-    "Google Hybrid": googleHybrid,
-    "Google Terrain": googleTerrain,
-    "OpenTopoMap": OpenTopoMap,
-    "OPNVKarte": OPNVKarte,
-    "Ersi": Esri_WorldTopoMap,
-    "Stadia White": Stadia_OSMBright,
-    "Stadia Dark": Stadia_AlidadeSmoothDark
+// словарь слоёв
+const MAP_LAYERS = {
+  osm: osmLayer,
+  osmGray: osmGrayLayer,
+  satellite: satelliteLayerWithBorders,
+  googleStreets: googleStreets,
+  googleHybrid: googleHybrid,
+  googleTerrain: googleTerrain,
+  openTopo: OpenTopoMap,
+  googleTerrainGray: googleTerrainGray
 };
-
-// Добавляем контрол для переключения карт
-L.control.layers(baseLayers).addTo(map);
-
 
         let currentObjectId = 9500;
         let deleteMode = false;
@@ -3328,6 +3405,14 @@ function getNextLitakId() {
 
     document.getElementById('zoom-in').onclick = () => map.zoomIn();
     document.getElementById('zoom-out').onclick = () => map.zoomOut();
+    const ICON_SIZES_BY_STYLE = {
+  'style-val-slom':   [32, 32],
+  'style-mariupol':   [24.1, 24.1],
+  'style-bandera':    [28.8, 28.8],
+  'style-vladimir':   [29, 29],
+  'style-pomelo':     [27, 27]
+};
+
           const img = document.getElementById('toggleLayersImg');
   const layers = document.querySelector('.leaflet-control-layers');
 
@@ -3411,6 +3496,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   styleSelect.addEventListener('change', () => {
     root.classList.remove('style-pomelo', 'style-mariupol', 'style-bandera', 'style-vladimir', 'style-val-slom');
+const styleClass = `style-${styleSelect.value}`;
+root.classList.add(styleClass);
+
+// 🔥 ПЕРЕСЧЁТ РАЗМЕРОВ ИКОНОК
+updateAllMarkersForStyle(styleClass);
 
 if (styleSelect.value === 'bandera') {
   root.classList.add('style-bandera');
@@ -3470,6 +3560,234 @@ if (toggleFrontLine) {
     }
   });
 }
+const toggleText = document.getElementById('toggleText');
+const mapRoot = document.getElementById('map');
+
+if (toggleText && mapRoot) {
+  // начальное состояние (включено)
+  if (!toggleText.checked) {
+    mapRoot.classList.add('hide-text');
+  }
+
+  toggleText.addEventListener('change', () => {
+    mapRoot.classList.toggle('hide-text', !toggleText.checked);
+  });
+}
+const toggleQuality = document.getElementById('toggleQuality');
+
+if (toggleQuality && mapRoot) {
+  toggleQuality.addEventListener('change', () => {
+    mapRoot.classList.toggle(
+      'show-quality',
+      toggleQuality.checked
+    );
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const styleSelect = document.getElementById('styleSelect');
+  const root = document.getElementById('map');
+  const toggleQuality = document.getElementById('toggleQuality');
+
+  if (!styleSelect || !root) return;
+
+  // начальный стиль
+  root.classList.add('style-pomelo');
+
+  styleSelect.addEventListener('change', () => {
+    // убираем все стили
+    root.classList.remove(
+      'style-pomelo',
+      'style-mariupol',
+      'style-bandera',
+      'style-vladimir',
+      'style-val-slom'
+    );
+
+    const value = styleSelect.value;
+    root.classList.add(`style-${value}`);
+
+    // 🔥 ВАЖНО: вмешиваемся ТОЛЬКО для val-slom
+    if (toggleQuality && value === 'val-slom') {
+      toggleQuality.checked = true;
+      root.classList.add('show-quality');
+    }
+    // ❗ НИЧЕГО НЕ ДЕЛАЕМ для остальных стилей
+  });
+});
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleRadius = document.getElementById('toggleRadius');
+  if (!toggleRadius || !window.map) return;
+
+  const KYIV = [50.4501, 30.5234];
+  const RADIUS_METERS = 3_000_000;
+
+  const kyivRadiusCircle = L.circle(KYIV, {
+    radius: RADIUS_METERS,
+    color: '#4da6ff',
+    weight: 1.5,
+    fillColor: '#4da6ff',
+    fillOpacity: 0.12,
+    opacity: 0.8
+  });
+
+  toggleRadius.addEventListener('change', () => {
+    if (toggleRadius.checked) {
+      kyivRadiusCircle.addTo(map);
+    } else {
+      map.removeLayer(kyivRadiusCircle);
+    }
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ===============================
+     ПОЗИЦИЯ (Chel.png)
+  =============================== */
+
+  const togglePosition = document.getElementById('togglePosition');
+  if (!togglePosition) {
+    console.warn('togglePosition not found');
+    return;
+  }
+
+  let positionMarker = null;
+
+  // стартовая позиция
+  let currentLatLng = [50.433714918437474, 30.623164051610438];
+
+  function createPositionMarker() {
+    const icon = L.icon({
+      iconUrl: 'Chel.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 28],
+      popupAnchor: [0, -32]
+    });
+
+    positionMarker = L.marker(currentLatLng, { icon });
+
+    positionMarker.bindPopup(`
+      <div style="
+        min-width:260px;
+        font-size:14px;
+      ">
+        <div style="font-weight:600; margin-bottom:8px;">
+          Нова позиція
+        </div>
+
+        <input
+          id="coord-input"
+          type="text"
+          value="${currentLatLng[0]}, ${currentLatLng[1]}"
+          placeholder="Lat, Lng"
+          style="
+            width:100%;
+            padding:6px 8px;
+            font-size:14px;
+            box-sizing:border-box;
+            margin-bottom:8px;
+          "
+        />
+
+        <button
+          id="coord-apply"
+          style="
+            width:100%;
+            padding:6px;
+            font-size:14px;
+            cursor:pointer;
+          "
+        >
+          Перемістити
+        </button>
+      </div>
+    `);
+
+    positionMarker.on('popupopen', () => {
+      setTimeout(() => {
+        const btn = document.getElementById('coord-apply');
+        const input = document.getElementById('coord-input');
+        if (!btn || !input) return;
+
+        btn.onclick = () => {
+          const parts = input.value.split(',').map(v => v.trim());
+          if (parts.length !== 2) return;
+
+          const lat = parseFloat(parts[0]);
+          const lng = parseFloat(parts[1]);
+          if (isNaN(lat) || isNaN(lng)) return;
+
+          currentLatLng = [lat, lng];
+
+          positionMarker.setLatLng(currentLatLng);
+          map.panTo(currentLatLng);
+          positionMarker.closePopup();
+        };
+      }, 0);
+    });
+
+    positionMarker.addTo(map);
+  }
+
+  togglePosition.addEventListener('change', () => {
+    if (typeof map === 'undefined') {
+      console.error('map is undefined');
+      return;
+    }
+
+    if (togglePosition.checked) {
+      if (!positionMarker) {
+        createPositionMarker();
+      } else {
+        positionMarker.addTo(map);
+      }
+    } else {
+      if (positionMarker) {
+        map.removeLayer(positionMarker);
+      }
+    }
+  });
+
+});
+function updateMarkerIconSize(marker, styleClass) {
+  const size = ICON_SIZES_BY_STYLE[styleClass];
+  if (!size) return;
+
+  const [w, h] = size;
+
+  const icon = marker.getIcon();
+  if (!icon || !icon.options) return;
+
+  icon.options.iconSize = [w, h];
+  icon.options.iconAnchor = [w / 2, h / 2];
+
+  marker.setIcon(icon);
+}
+function updateAllMarkersForStyle(styleClass) {
+  markers.forEach(marker => {
+    updateMarkerIconSize(marker, styleClass);
+  });
+}
+const mapSelect = document.getElementById('mapSelect');
+
+if (mapSelect) {
+  mapSelect.addEventListener('change', () => {
+    const selected = mapSelect.value;
+    const nextLayer = MAP_LAYERS[selected];
+
+    if (!nextLayer || nextLayer === currentBaseLayer) return;
+
+    // убираем старый слой
+    map.removeLayer(currentBaseLayer);
+
+    // добавляем новый
+    nextLayer.addTo(map);
+
+    currentBaseLayer = nextLayer;
+  });
+}
+
 </script>
 
 </body>
