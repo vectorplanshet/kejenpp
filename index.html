@@ -581,8 +581,8 @@ body {
 
 .custom-menu {
     position: absolute;
-    bottom: 26px;               /* 16 * 1.6 */
-    right: 8px;                /* 10 * 1.6 */
+    bottom: 22px;               /* 16 * 1.6 */
+    right: 6px;                /* 10 * 1.6 */
     display: flex;
     flex-direction: column;
     gap: 10px;                  /* 10 * 1.6 */
@@ -600,9 +600,9 @@ body {
 /* Кнопки меню */
 .custom-button {
     width: 30px;                /* 19 * 1.6 */
-    height: 24px;               /* 15 * 1.6 */
+    height: 26px;               /* 15 * 1.6 */
     background-color: #5B595C;
-    border-radius: 2px;       /* 1.5 * 1.6 */
+    border-radius: 2.2px;       /* 1.5 * 1.6 */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -621,11 +621,11 @@ body {
 /* Левая стрелка */
 #left-arrow-button {
     width: 30px;                /* 19 * 1.6 */
-    height: 24px;               /* 15 * 1.6 */
+    height: 26px;               /* 15 * 1.6 */
     background-color: #5B595C;
     display: flex;
     align-items: center;
-        border-radius: 2px;       /* 1.5 * 1.6 */
+        border-radius: 2.2px;       /* 1.5 * 1.6 */
     justify-content: center;
     padding: 0;
     border: none;
@@ -645,12 +645,12 @@ body {
     position: fixed;
     top: calc(var(--safe-top) + 0px);
     width: 100%;
-    height: 18px;
+    height: 16px;
     background-color: rgba(0, 0, 0, 0.7);
     color: #D90045;
     text-align: center;
-    padding: 4px;
-    font-size: 11.2px;
+    padding: 2px;
+    font-size: 11.1px;
     z-index: 9999;
 }
 
@@ -711,7 +711,7 @@ body {
   /* синхронно с SVG */
   background-size: 105px 96px;
 
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='105' height='96'%3E%3Cg transform='rotate(-41 52.5 48)'%3E%3Ctext x='52.5' y='16' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabfb22f%3C/text%3E%3Ctext x='16' y='48' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabfb22f%3C/text%3E%3Ctext x='89' y='48' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabfb22f%3C/text%3E%3Ctext x='52.5' y='80' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabfb22f%3C/text%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='105' height='96'%3E%3Cg transform='rotate(-41 52.5 48)'%3E%3Ctext x='52.5' y='14' text-anchor='middle' font-family='Arial' font-size='14' fill='%23000' fill-opacity='0.75'%3Eabfb22f%3C/text%3E%3Ctext x='16' y='48' text-anchor='middle' font-family='Arial' font-size='15' fill='%23000' fill-opacity='0.75'%3Eabfb22f%3C/text%3E%3Ctext x='89' y='48' text-anchor='middle' font-family='Arial' font-size='15' fill='%23000' fill-opacity='0.75'%3Eabfb22f%3C/text%3E%3Ctext x='52.5' y='80' text-anchor='middle' font-family='Arial' font-size='15' fill='%23000' fill-opacity='0.75'%3Eabfb22f%3C/text%3E%3C/g%3E%3C/svg%3E");
 }
 
 
@@ -1895,7 +1895,7 @@ transform: scale(0.95);
 /* позиционирование */
 .leaflet-control.leaflet-scale-bracket {
   position: fixed;
-  top: 20px;            /* было 20px */
+  top: 23px;            /* было 20px */
   left: 50%;
   transform: translateX(-50%);
 }
@@ -2049,13 +2049,6 @@ transform: scale(0.95);
 </head>
 <body>
     <div id="warning-message">Не було повідомлень протягом тривалого часу</div>
-    <div id="passwordContainer">    
-        <img src="iconpas.png">
-        <div class="inputWrapper">
-            <input type="text" id="loginInput" placeholder="Логин">
-            <input type="password" id="passwordInput" placeholder="Пароль">
-            <button id="submitButton">Войти в систему</button>
-        </div>
     </div>
     <div id="leaflet-control-layers"></div>
     </div>
@@ -2273,28 +2266,12 @@ transform: scale(0.95);
     crossorigin="anonymous"
 ></script>
     <script>
-            const correctLogin = "admin";  // Указываем правильный логин
-    const correctPassword = "12339321";  // Указываем правильный пароль
-
-    document.getElementById("submitButton").addEventListener("click", function() {
-        let userLogin = document.getElementById("loginInput").value;
-        let userPassword = document.getElementById("passwordInput").value;
-        
-        if (userLogin === correctLogin && userPassword === correctPassword) {
-            document.getElementById("passwordContainer").style.display = "none"; // Прячем форму
-            document.getElementById("map").style.display = "block"; // Показываем карту
-            initMap(); // Загружаем карту
-        } else {
-            alert("Неверный логин или пароль!");
-        }
-    });
+      
         const map = L.map('map', {
             zoomControl: false,
                         zoomSnap: 0.01,
  zoomDelta: 0.01,
       wheelPxPerZoomLevel: 80,
-        zoomAnimation: false,
-  scrollWheelZoom: true
         }).setView([48.3794, 31.1656], 7);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -3715,7 +3692,7 @@ fetch("front.json")
 
         return {
           color: color,
-          weight: 1,
+          weight: 2,
           opacity: opacity,
           fillColor: color,
           fillOpacity: fillOpacity
@@ -4406,20 +4383,9 @@ const ScaleBracketTop = L.Control.extend({
     this._label.textContent = text;
   }
 });
-let rotation = 0;
+const scaleTop = new ScaleBracketTop({ maxWidth: 160 });
+map.addControl(scaleTop);
 
-function applyTransform() {
-  const sideways = Math.abs(rotation % 180) === 90;
-
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-
-  body.style.width = (sideways ? h : w) + 'px';
-  body.style.height = (sideways ? w : h) + 'px';
-
-  body.style.transform =
-    `translate(-50%, -50%) rotate(${rotation}deg)`;
-}
 
 </script>
 
