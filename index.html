@@ -2871,6 +2871,8 @@ function addSpeedCircle(marker, speed) {
 }
 
 const marker = L.marker([lat, lng], { icon }).addTo(map);
+marker._trueOriginalIconHtml = iconHtml; // настоящий
+marker._originalIconHtml = iconHtml;     // рабочий (будем менять)
 
 // если у маркера уже был круг — удаляем
 if (marker._speedCircle) {
@@ -3362,7 +3364,10 @@ const objectType = ICON_TYPES[iconUrl] || "";
 
     <!-- БЛОК ИКОНКИ — ТОЛЬКО КАРТИНКА -->
     <div class="icon-wrap">
-        <img src="${iconUrl}" class="icon" />
+<img src="${iconUrl}" class="icon" />
+
+
+
     </div>
 
     <!-- ТЕКСТ — ОТДЕЛЬНО -->
@@ -3416,9 +3421,9 @@ const expandedAnchor = [
 
         marker.setIcon(L.divIcon({
             className: "icon",
-            html: marker._originalIconHtml,
-            iconSize: marker._originalSize,
-            iconAnchor: marker._originalAnchor
+    html: marker._originalIconHtml,
+    iconSize: marker._originalSize,
+    iconAnchor: marker._originalAnchor
         }));
 
         marker._expanded = false;
@@ -4411,6 +4416,119 @@ const ScaleBracketTop = L.Control.extend({
 });
 const scaleTop = new ScaleBracketTop({ maxWidth: 160 });
 map.addControl(scaleTop);
+
+const userMarkers = new Set();
+const originalSrc = new WeakMap();
+
+const EXCLUDE = ['zl', 'blue-id', 'perexop', 'vertolet'];
+
+let CURRENT_PHASE = 'NORMAL';
+// NORMAL | HIDDEN | NEYST
+function getMarkers() {
+  const markers = [];
+  map.eachLayer(layer => {
+    if (layer instanceof L.Marker) {
+      markers.push(layer);
+    }
+  });
+  return markers;
+}
+function hideMarkers() {
+  getMarkers().forEach(m => {
+    const el = m.getElement();
+    if (el) el.style.display = 'none';
+  });
+}
+function setMarkerImage(marker, src) {
+  const el = marker.getElement();
+  if (!el) return;
+
+  const img = el.querySelector('img.icon');
+  if (img) {
+    img.src = src;
+  }
+}
+function restoreMarkerImage(marker) {
+  if (marker._originalImgSrc) {
+    setMarkerImage(marker, marker._originalImgSrc);
+  }
+}
+function applyNeyst(marker) {
+  setMarkerImage(marker, 'neyst tip.png');
+}
+
+
+function showNeyst() {
+  getMarkers().forEach(m => {
+    const el = m.getElement();
+    if (!el) return;
+
+    const img = el.querySelector('img.icon');
+    if (!img) return;
+
+    el.style.display = '';
+
+    // сохранить оригинал ОДИН РАЗ
+    if (!img.dataset.originalSrc) {
+      img.dataset.originalSrc = img.src;
+    }
+
+    const container = el.querySelector('.icon-container');
+    const excluded =
+      container && EXCLUDE.some(c => container.classList.contains(c));
+
+    if (!excluded) {
+      img.src = 'neyst tip.png';
+    }
+  });
+}
+function restoreIcons() {
+  getMarkers().forEach(m => {
+    const el = m.getElement();
+    if (!el) return;
+
+    const img = el.querySelector('img.icon');
+    if (!img) return;
+
+    if (img.dataset.originalSrc) {
+      img.src = img.dataset.originalSrc;
+    }
+  });
+}function getRandomInterval() {
+  const BASE = 2 * 60 * 60 * 1000;      // 2 часа
+  const DELTA = 30 * 60 * 1000;         // ±30 минут
+
+  return BASE + (Math.random() * 2 - 1) * DELTA;
+}
+function startNeystCycle() {
+  const delay = getRandomInterval();
+
+  console.log(
+    'Следующий цикл через',
+    Math.round(delay / 60000),
+    'мин'
+  );
+
+  setTimeout(() => {
+    // 👉 ТУТ ТВОЯ ЛОГИКА
+    // hide → neyst → return
+
+    runNeystOnce(); // например
+
+    // планируем следующий
+    startNeystCycle();
+
+  }, delay);
+}
+function runNeystOnce() {
+  // скрыли
+  hideMarkers();
+
+  setTimeout(showNeyst, 30000);       // 30 сек пусто
+  setTimeout(restoreIcons, 90000);    // 60 сек neyst
+}
+startNeystCycle();
+
 
 
 </script>
