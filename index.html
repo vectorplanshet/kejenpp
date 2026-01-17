@@ -2171,6 +2171,8 @@ transform: scale(0.95);
 .style-val .icon-container .icon {
     width: 32px;              /* 20 × 1.6 */
     height: 32px;
+      contain: layout paint; /* ← ВАЖНО */
+  transform: translateZ(0); /* форс GPU */
     object-fit: cover;
     display: block;
 }
@@ -2193,11 +2195,57 @@ transform: scale(0.95);
     pointer-events: none;
 }
 
-/* если используется второй контейнер */
-.style-val .icon-container1 .icon {
-    content: url("neyst tip.png") !important;
-    pointer-events: none;
+/* ================================
+   STYLE-VAL: фиксация иконок
+   ================================ */
+
+/* ======================================
+   STYLE-VAL — жёсткая фиксация иконок
+   по iconClass
+   ====================================== */
+
+/* blue-id */
+.style-val .blue-id .icon,
+.style-val .icon.blue-id {
+    content: url("blue 2.png") !important;
 }
+
+/* red-id */
+.style-val .red-id .icon,
+.style-val .icon.red-id {
+    content: url("neyst tip.png") !important;
+}
+
+/* zl */
+.style-val .zl .icon,
+.style-val .icon.zl {
+    content: url("zl.png") !important;
+}
+
+/* vertolet */
+.style-val .vertolet .icon,
+.style-val .icon.vertolet {
+    content: url("blue 2.png") !important;
+}
+
+/* litak */
+.style-val .litak .icon,
+.style-val .icon.litak {
+    content: url("zl.png") !important;
+}
+
+/* perexop */
+.style-val .perexop .icon,
+.style-val .icon.perexop {
+    content: url("zl.png") !important;
+}
+
+/* kr */
+.style-val .kr .icon,
+.style-val .icon.kr {
+    content: url("neyst tip.png") !important;
+}
+
 .label-container::after {
     content: "р";
     margin-left: -0.25em;
@@ -2205,6 +2253,16 @@ transform: scale(0.95);
 .style-val .label-container::after {
     content: "";
     margin-left: 0;
+}
+.icon-container.expanded .label-container::after {
+    content: "р" !important;
+    margin-left: 0 !important;
+}
+/* ГЛОБАЛЬНЫЙ СБРОС ПЕРЕД ПРИМЕНЕНИЕМ СТИЛЯ */
+.icon-container {
+  contain: none;
+  transform: none;
+  will-change: auto;
 }
 
 
@@ -2881,8 +2939,8 @@ if (speed >= 120 && speed <= 121) {
             <div class="icon-container ${iconClass}">
                 <img src="${iconUrl}" class="icon" />
                 <div class="info-container ${shiftedClass} ${shiftedClasss}">
-<span class="label-container ${iconClass}">
-  ${isStyleVal ? objectId3 : objectId3 + 'р'}
+<span class="label-container ${iconClass}" data-id="${objectId3}">
+  0${objectId3}
 </span>
 
                     <span class="r-container ${iconClass}">ЛБ·</span>
@@ -2904,10 +2962,9 @@ if (speed >= 120 && speed <= 121) {
           <div class="icon-container ${iconClass}">
             <img src="${iconUrl}" class="icon" />
             <div class="info-container ${shiftedClass} ${shiftedClasss}">
-<span class="label-container ${iconClass}">
-  ${isStyleVal ? objectId : objectId + 'р'}
+<span class="label-container ${iconClass}" data-id="${objectId}">
+  ${objectId}
 </span>
-
               <span class="r-container ${iconClass}">ПП·</span>
             </div>
           </div>
@@ -2926,8 +2983,8 @@ if (speed >= 120 && speed <= 121) {
             <div class="icon-container ${iconClass}">
                 <img src="${iconUrl}" class="icon" />
                 <div class="info-container ${shiftedClass} ${shiftedClasss}">
-<span class="label-container ${iconClass}">
-  ${isStyleVal ? '0' + objectId2 : '0' + objectId2 + 'р'}
+<span class="label-container ${iconClass}" data-id="${objectId2}">
+  0${objectId2}
 </span>
 
                     <span class="r-container ${iconClass}">СВ·</span>
@@ -2946,8 +3003,8 @@ if (speed >= 120 && speed <= 121) {
             <div class="icon-container ${iconClass}">
                 <img src="${iconUrl}" class="icon" />
                 <div class="info-container ${shiftedClass} ${shiftedClasss}">
-<span class="label-container ${iconClass}">
-  ${isStyleVal ? '0' + objectId2 : '0' + objectId2 + 'р'}
+<span class="label-container ${iconClass}" data-id="${objectId2}">
+  0${objectId2}
 </span>
 
                     <span class="r-container ${iconClass}">СВ·</span>
@@ -2966,10 +3023,9 @@ if (speed >= 120 && speed <= 121) {
             <div class="icon-container ${iconClass}">
                 <img src="${iconUrl}" class="icon" />
                 <div class="info-container ${shiftedClass} ${shiftedClasss}">
-<span class="label-container ${iconClass}">
-  ${isStyleVal ? '0' + objectId2 : '0' + objectId2 + 'р'}
+<span class="label-container ${iconClass}" data-id="${objectId2}">
+  0${objectId2}
 </span>
-
                     <span class="r-container ${iconClass}">ЗЛ·</span>
                 </div>
             </div>
@@ -2980,12 +3036,13 @@ if (speed >= 120 && speed <= 121) {
             iconSize: [24.1, 24.1],
             iconAnchor: [12.05, 12.05],
         });
+            } else if (iconClass === 'perexop') {
         iconHtml = `
             <div class="icon-container ${iconClass}">
                 <img src="${iconUrl}" class="icon" />
                 <div class="info-container ${shiftedClass} ${shiftedClasss}">
-<span class="label-container ${iconClass}">
-  ${isStyleVal ? '0' + objectId2 : '0' + objectId2 + 'р'}
+<span class="label-container ${iconClass}" data-id="${objectId2}">
+  0${objectId2}
 </span>
 
                     <span class="r-container ${iconClass}">ЗЛ·</span>
@@ -3396,13 +3453,13 @@ function createTopMenu(marker) {
     // обновлено — линия теперь исчезает при закрытии меню
     document.getElementById(`closeTopMenu-${objectId}`).onclick = () => {
             disableTrail();
-
+const isExpanded = marker._expanded;
         // вернуть иконку в обычный вид, если была раскрыта
 if (marker._expanded) {
     marker.setIcon(L.divIcon({
         className: "icon",
         html: marker._originalIconHtml,
-        iconSize: marker._originalSize,
+  iconSize: isExpanded ? undefined : ICON_SIZES_BY_STYLE[currentStyle],
         iconAnchor: marker._originalAnchor
     }));
     marker._expanded = false;
@@ -3416,15 +3473,16 @@ if (marker._expanded) {
     }
 
     // 🔥 если иконка была изменена — вернуть исходную
-    if (marker.isExpanded) {
-        marker.setIcon(L.divIcon({
-            className: 'icon',
-            html: iconHtml,
-            iconSize: [28.8, 28.8],
-            iconAnchor: [14.4, 14.4],
-        }));
-        marker.isExpanded = false;
-    }
+if (marker.isExpanded) {
+    marker.setIcon(L.divIcon({
+        className: 'icon',
+        html: iconHtml,
+        iconSize: marker._originalSize,
+        iconAnchor: marker._originalAnchor,
+    }));
+    marker.isExpanded = false;
+}
+
 
         // ✅ перерасчёт всех меню С УЧЁТОМ SAFE-TOP
         const allMenus = document.querySelectorAll('[id^="top-menu-"]');
@@ -4141,9 +4199,9 @@ function getNextLitakId() {
   'style-bandera':    [28.8, 28.8],
   'style-vladimir':   [29, 29],
   'style-pomelo':     [27, 27],
-  '.style-labrador':  [26, 26],
-  '.style-pol':       [30, 30],
-'.style-labrador-vl':  [30, 30]
+  'style-labrador':  [26, 26],
+  'style-pol':       [30, 30],
+'style-labrador-vl':  [30, 30]
 };
 
           const img = document.getElementById('toggleLayersImg');
@@ -4734,6 +4792,9 @@ startNeystCycle();
       document.exitFullscreen();
     }
   });
+document.body.classList.remove(oldStyle);
+void document.body.offsetHeight; // 💥 принудительный reflow
+document.body.classList.add(newStyle);
 
 </script>
 
