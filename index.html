@@ -3950,6 +3950,7 @@ fetch("front.json")
   .then(response => response.json())
   .then(data => {
     frontLayer = L.geoJSON(data, {
+        smoothFactor: 0,   // 🔥 КЛЮЧЕВО
       style: function(feature) {
         let color = '#bdbdbd';
         let opacity = 1;
