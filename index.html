@@ -2232,7 +2232,10 @@ transform: scale(0.95);
 .style-val .icon.kr {
     content: url("neyst tip.png") !important;
 }
-
+.style-val .eppo .icon,
+.style-val .icon.eppo {
+    content: url("EPVO.png") !important;
+}
 .label-container::after {
     content: "р";
     margin-left: -0.25em;
@@ -2742,7 +2745,7 @@ let shiftedClasss = "";
                 
     // Если скорость 0, сразу устанавливаем иконку EPVO
     iconUrl = 'EPVO.png'; 
-    iconClass = 'blue-id';  
+    iconClass = 'eppo';  
 
     // Генерируем ID от 500000 и время по Минску
     const objectId1 = getNextObjectId(); 
